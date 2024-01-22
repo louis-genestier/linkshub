@@ -1,6 +1,7 @@
 {
   "name": "@repo/backend",
   "main": "src/index.ts",
+  "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "migration:generate": "drizzle-kit generate:sqlite",
@@ -9,9 +10,11 @@
   "dependencies": {
     "@hono/node-server": "^1.3.5",
     "@hono/zod-validator": "^0.1.11",
+    "@lucia-auth/adapter-sqlite": "^2.0.1",
     "better-sqlite3": "^9.3.0",
     "drizzle-orm": "^0.29.3",
     "hono": "^3.12.0",
+    "lucia": "^2.7.6",
     "zod": "^3.22.4"
   },
   "devDependencies": {
