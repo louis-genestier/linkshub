@@ -4,7 +4,7 @@ import { zValidator } from "@hono/zod-validator";
 import { logger } from "hono/logger";
 import { cors } from "hono/cors";
 import { z } from "zod";
-import { auth } from "./auth/lucia.js";
+import { SqliteError } from "better-sqlite3";
 import {
   createCookieSession,
   createUserWithUsername,
@@ -46,11 +46,21 @@ const route = app
       })
     ),
     async (c) => {
-      const { username, password } = c.req.valid("json");
-      const user = await createUserWithUsername(username, password);
-      const cookie = await createCookieSession(user.userId);
-      c.header("Set-Cookie", cookie);
-      return c.redirect("/");
+      try {
+        const { username, password } = c.req.valid("json");
+        const user = await createUserWithUsername(username, password);
+        const cookie = await createCookieSession(user.userId);
+        c.header("Set-Cookie", cookie);
+        return c.redirect("/");
+      } catch (e) {
+        if (e instanceof SqliteError && e.code === "SQLITE_CONSTRAINT_UNIQUE") {
+          c.status(400);
+          return c.json({ message: "Username already exists" });
+        }
+
+        c.status(500);
+        return c.json({ message: "An unknown error occurred" });
+      }
     }
   )
   .post(
