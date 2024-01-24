@@ -3,7 +3,9 @@
   "compilerOptions": {
     "strict": true,
     "jsx": "react-jsx",
-    "jsxImportSource": "hono/jsx"
+    "jsxImportSource": "hono/jsx",
+    "allowImportingTsExtensions": true,
+    "emitDeclarationOnly": true
   },
   "exclude": [
     "node_modules",

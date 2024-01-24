@@ -11,6 +11,7 @@ import {
   getUserKeyByUsername,
 } from "./auth/utils.js";
 import { LuciaError } from "lucia";
+import users from "./users/users.controller.ts";
 
 const port = 3000;
 
@@ -20,22 +21,6 @@ app.use("*", logger());
 app.use("*", cors());
 
 const route = app
-  .get("/", (c) => {
-    return c.text("Hello Hono!");
-  })
-  .get(
-    "/hello",
-    zValidator(
-      "query",
-      z.object({
-        name: z.string(),
-      })
-    ),
-    (c) => {
-      const { name } = c.req.valid("query");
-      return c.json({ message: `Hello ${name}!` });
-    }
-  )
   .post(
     "/signup",
     zValidator(
@@ -78,7 +63,7 @@ const route = app
         const userKey = await getUserKeyByUsername(username, password);
         const cookie = await createCookieSession(userKey.userId);
         c.header("Set-Cookie", cookie);
-        return c.redirect("/");
+        return c.json({ message: "Logged in" });
       } catch (e) {
         if (
           e instanceof LuciaError &&
@@ -93,7 +78,8 @@ const route = app
         return c.json({ message: "An unknown error occurred" });
       }
     }
-  );
+  )
+  .route("/users", users);
 
 serve({
   fetch: app.fetch,
