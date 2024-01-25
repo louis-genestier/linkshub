@@ -17,7 +17,6 @@ export const isAuth = () => {
       return c.json({ message: "Not logged in" });
     }
 
-    console.log(session.user.userId);
     c.set("userId", session.user.userId);
 
     await next();

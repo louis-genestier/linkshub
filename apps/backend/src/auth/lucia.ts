@@ -15,6 +15,7 @@ export const auth = lucia({
   sessionCookie: {
     expires: false,
   },
+  csrfProtection: false, // TODO: configure csrf protection
 });
 
 export type Auth = typeof auth;
