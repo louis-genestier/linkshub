@@ -15,6 +15,13 @@
       "when": 1705957877021,
       "tag": "0001_medical_human_torch",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1706169405798,
+      "tag": "0002_mighty_earthquake",
+      "breakpoints": true
     }
   ]
 }

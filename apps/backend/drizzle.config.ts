@@ -5,6 +5,6 @@ export default {
   dbCredentials: {
     url: "db.sqlite",
   },
-  schema: "./src/database/schemas/user.ts",
+  schema: "./src/database/schemas/*.ts",
   out: "./src/database/migrations",
 } satisfies Config;

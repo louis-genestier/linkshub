@@ -12,6 +12,7 @@ import {
 } from "./auth/utils.js";
 import { LuciaError } from "lucia";
 import users from "./users/users.controller.ts";
+import bookmarks from "./bookmarks/bookmarks.controller.ts";
 
 const port = 3000;
 
@@ -36,7 +37,7 @@ const route = app
         const user = await createUserWithUsername(username, password);
         const cookie = await createCookieSession(user.userId);
         c.header("Set-Cookie", cookie);
-        return c.redirect("/");
+        return c.json({ message: "Signed up" });
       } catch (e) {
         if (e instanceof SqliteError && e.code === "SQLITE_CONSTRAINT_UNIQUE") {
           c.status(400);
@@ -79,7 +80,8 @@ const route = app
       }
     }
   )
-  .route("/users", users);
+  .route("/users", users)
+  .route("/bookmarks", bookmarks);
 
 serve({
   fetch: app.fetch,
