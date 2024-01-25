@@ -12,88 +12,36 @@ import {
 
 const app = new Hono();
 
-app.get("/", isAuth(), async (c) => {
-  const userId = c.get("userId");
-
-  const foundBookmarks = await getUserBookmarks(userId);
-
-  return c.json([...foundBookmarks]);
-});
-
-app.post(
-  "/",
-  isAuth(),
-  zValidator(
-    "json",
-    z.object({
-      url: z.string().url(),
-      title: z.string().optional(),
-    })
-  ),
-  async (c) => {
+const route = app
+  .get("/", isAuth(), async (c) => {
     const userId = c.get("userId");
-    const { url, title } = c.req.valid("json");
 
-    const createdBookmark = await createBookmark(userId, url, title);
+    const foundBookmarks = await getUserBookmarks(userId);
 
-    return c.json({ ...createdBookmark[0] });
-  }
-);
+    return c.json([...foundBookmarks]);
+  })
+  .post(
+    "/",
+    isAuth(),
+    zValidator(
+      "json",
+      z.object({
+        url: z.string().url(),
+        title: z.string().optional(),
+      })
+    ),
+    async (c) => {
+      const userId = c.get("userId");
+      const { url, title } = c.req.valid("json");
 
-app.get("/:id", isAuth(), async (c) => {
-  const userId = c.get("userId");
-  const id = c.req.param("id");
+      const createdBookmark = await createBookmark(userId, url, title);
 
-  const foundBookmark = await getBookmarkById(+id);
-
-  if (!foundBookmark) {
-    c.status(404);
-    return c.json({ message: "Bookmark not found" });
-  }
-
-  if (foundBookmark.userId !== userId) {
-    c.status(401);
-    return c.json({ message: "Unauthorized" });
-  }
-
-  return c.json({ ...foundBookmark });
-});
-
-app.delete("/:id", isAuth(), async (c) => {
-  const userId = c.get("userId");
-  const id = c.req.param("id");
-
-  const foundBookmark = await getBookmarkById(+id);
-
-  if (!foundBookmark) {
-    c.status(404);
-    return c.json({ message: "Bookmark not found" });
-  }
-
-  if (foundBookmark.userId !== userId) {
-    c.status(401);
-    return c.json({ message: "Unauthorized" });
-  }
-
-  await deleteBookmarkById(+id);
-
-  return c.json({ message: "Bookmark deleted" });
-});
-
-app.put(
-  "/:id",
-  isAuth(),
-  zValidator(
-    "json",
-    z.object({
-      url: z.string().url(),
-      title: z.string().optional(),
-    })
-  ),
-  async (c) => {
+      return c.json({ ...createdBookmark[0] });
+    }
+  )
+  .get("/:id", isAuth(), async (c) => {
     const userId = c.get("userId");
     const id = c.req.param("id");
-    const { url, title } = c.req.valid("json");
 
     const foundBookmark = await getBookmarkById(+id);
 
@@ -107,10 +55,61 @@ app.put(
       return c.json({ message: "Unauthorized" });
     }
 
-    const updatedBookmark = await updateBookmarkById(+id, url, title);
+    return c.json({ ...foundBookmark });
+  })
+  .delete("/:id", isAuth(), async (c) => {
+    const userId = c.get("userId");
+    const id = c.req.param("id");
 
-    return c.json({ ...updatedBookmark[0] });
-  }
-);
+    const foundBookmark = await getBookmarkById(+id);
+
+    if (!foundBookmark) {
+      c.status(404);
+      return c.json({ message: "Bookmark not found" });
+    }
+
+    if (foundBookmark.userId !== userId) {
+      c.status(401);
+      return c.json({ message: "Unauthorized" });
+    }
+
+    await deleteBookmarkById(+id);
+
+    return c.json({ message: "Bookmark deleted" });
+  })
+  .put(
+    "/:id",
+    isAuth(),
+    zValidator(
+      "json",
+      z.object({
+        url: z.string().url(),
+        title: z.string().optional(),
+      })
+    ),
+    async (c) => {
+      const userId = c.get("userId");
+      const id = c.req.param("id");
+      const { url, title } = c.req.valid("json");
+
+      const foundBookmark = await getBookmarkById(+id);
+
+      if (!foundBookmark) {
+        c.status(404);
+        return c.json({ message: "Bookmark not found" });
+      }
+
+      if (foundBookmark.userId !== userId) {
+        c.status(401);
+        return c.json({ message: "Unauthorized" });
+      }
+
+      const updatedBookmark = await updateBookmarkById(+id, url, title);
+
+      return c.json({ ...updatedBookmark[0] });
+    }
+  );
 
 export default app;
+
+export type BookmarkAppType = typeof route;
