@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { isAuth } from "../middleware/isAuth.ts";
+import { isAuth } from "../../middleware/isAuth.ts";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import {
@@ -8,7 +8,7 @@ import {
   getBookmarkById,
   getUserBookmarks,
   updateBookmarkById,
-} from "./bookmarks.model.ts";
+} from "../../database/models/bookmarks.model.ts";
 
 const app = new Hono();
 

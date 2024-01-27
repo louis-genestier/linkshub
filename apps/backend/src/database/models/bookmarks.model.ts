@@ -1,5 +1,5 @@
-import { db } from "../database/index.ts";
-import { bookmark } from "../database/schemas/bookmark.ts";
+import { db } from "../index.ts";
+import { bookmark } from "../schemas/bookmark.ts";
 import { eq } from "drizzle-orm";
 
 export const getUserBookmarks = async (userId: string) =>
