@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { isAuth } from "../../middleware/isAuth.ts";
+import { isAuth } from "../../middlewares/isAuth.ts";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import {
@@ -9,12 +9,21 @@ import {
   getUserBookmarks,
   updateBookmarkById,
 } from "../../database/models/bookmarks.model.ts";
+import type { User, Session } from "lucia";
+import { Variables } from "hono/types";
 
-const app = new Hono();
+const app = new Hono<{
+  Variables: {
+    user: User;
+    session: Session;
+  };
+}>();
+
+app.use("*", isAuth());
 
 const route = app
-  .get("/", isAuth(), async (c) => {
-    const userId = c.get("userId");
+  .get("/", async (c) => {
+    const { id: userId } = c.get("user");
 
     const foundBookmarks = await getUserBookmarks(userId);
 
@@ -22,7 +31,6 @@ const route = app
   })
   .post(
     "/",
-    isAuth(),
     zValidator(
       "json",
       z.object({
@@ -31,7 +39,7 @@ const route = app
       })
     ),
     async (c) => {
-      const userId = c.get("userId");
+      const { id: userId } = c.get("user");
       const { url, title } = c.req.valid("json");
 
       const createdBookmark = await createBookmark(userId, url, title);
@@ -39,8 +47,8 @@ const route = app
       return c.json({ ...createdBookmark[0] });
     }
   )
-  .get("/:id", isAuth(), async (c) => {
-    const userId = c.get("userId");
+  .get("/:id", async (c) => {
+    const { id: userId } = c.get("user");
     const id = c.req.param("id");
 
     const foundBookmark = await getBookmarkById(+id);
@@ -57,8 +65,8 @@ const route = app
 
     return c.json({ ...foundBookmark });
   })
-  .delete("/:id", isAuth(), async (c) => {
-    const userId = c.get("userId");
+  .delete("/:id", async (c) => {
+    const { id: userId } = c.get("user");
     const id = c.req.param("id");
 
     const foundBookmark = await getBookmarkById(+id);
@@ -79,7 +87,6 @@ const route = app
   })
   .put(
     "/:id",
-    isAuth(),
     zValidator(
       "json",
       z.object({
@@ -88,7 +95,7 @@ const route = app
       })
     ),
     async (c) => {
-      const userId = c.get("userId");
+      const { id: userId } = c.get("user");
       const id = c.req.param("id");
       const { url, title } = c.req.valid("json");
 

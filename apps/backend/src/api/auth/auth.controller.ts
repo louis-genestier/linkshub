@@ -1,13 +1,14 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
-import { SqliteError } from "better-sqlite3";
+import { generateId } from "lucia";
+import { Argon2id } from "oslo/password";
 import {
-  createCookieSession,
-  createUserWithUsername,
-  getUserKeyByUsername,
-} from "../../auth/utils.ts";
-import { LuciaError } from "lucia";
+  createUser,
+  getUserByUsername,
+} from "../../database/models/users.model.ts";
+import { lucia } from "../../auth/lucia.ts";
+import { ErrorWithHttpCode } from "../../utils/errorWithHttpCode.ts";
 
 const authValidator = z.object({
   username: z.string(),
@@ -18,42 +19,34 @@ const app = new Hono();
 
 const route = app
   .post("/signup", zValidator("json", authValidator), async (c) => {
-    try {
-      const { username, password } = c.req.valid("json");
-      const user = await createUserWithUsername(username, password);
-      const cookie = await createCookieSession(user.userId);
-      c.header("Set-Cookie", cookie);
-      return c.json({ message: "Signed up" });
-    } catch (e) {
-      if (e instanceof SqliteError && e.code === "SQLITE_CONSTRAINT_UNIQUE") {
-        c.status(400);
-        return c.json({ message: "Username already exists" });
-      }
+    const { username, password } = c.req.valid("json");
+    const userId = generateId(15);
+    const user = await createUser(username, password, userId);
+    const session = await lucia.createSession(userId, {});
+    const sessionCookie = await lucia.createSessionCookie(session.id);
 
-      c.status(500);
-      return c.json({ message: "An unknown error occurred" });
-    }
+    c.header("Set-Cookie", sessionCookie.serialize());
+    return c.json({ ...user });
   })
   .post("/login", zValidator("json", authValidator), async (c) => {
     const { username, password } = c.req.valid("json");
-    try {
-      const userKey = await getUserKeyByUsername(username, password);
-      const cookie = await createCookieSession(userKey.userId);
-      c.header("Set-Cookie", cookie);
-      return c.json({ message: "Logged in" });
-    } catch (e) {
-      if (
-        e instanceof LuciaError &&
-        (e.message === "AUTH_INVALID_KEY_ID" ||
-          e.message === "AUTH_INVALID_PASSWORD")
-      ) {
-        c.status(400);
-        return c.json({ message: "Incorrect username or password" });
-      }
 
-      c.status(500);
-      return c.json({ message: "An unknown error occurred" });
+    const user = await getUserByUsername(username);
+
+    const validPassword = await new Argon2id().verify(
+      user.hashedPassword,
+      password
+    );
+
+    if (!validPassword) {
+      throw new ErrorWithHttpCode("Incorrect username or password", 400);
     }
+
+    const session = await lucia.createSession(user.id, {});
+    const sessionCookie = await lucia.createSessionCookie(session.id);
+
+    c.header("Set-Cookie", sessionCookie.serialize());
+    return c.json({ message: "Logged in" });
   });
 
 export default app;

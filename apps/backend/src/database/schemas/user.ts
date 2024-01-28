@@ -5,25 +5,17 @@ import { bookmark } from "./bookmark.ts";
 export const user = sqliteTable("user", {
   id: text("id").notNull().primaryKey(),
   username: text("username").notNull().unique(),
+  hashedPassword: text("hashed_password").notNull(),
 });
 
 export const userRelations = relations(user, ({ many }) => ({
   bookmarks: many(bookmark),
 }));
 
-export const userKey = sqliteTable("user_key", {
-  id: text("id").notNull().primaryKey(),
-  userId: text("user_id")
-    .notNull()
-    .references(() => user.id),
-  hashedPassword: text("hashed_password"),
-});
-
 export const userSession = sqliteTable("user_session", {
   id: text("id").notNull().primaryKey(),
   userId: text("user_id")
     .notNull()
     .references(() => user.id),
-  activeExpires: integer("active_expires").notNull(),
-  idleExpires: integer("idle_expires").notNull(),
+  expiresAt: integer("expires_at").notNull(),
 });
