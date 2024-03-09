@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
-import { generateId } from "lucia";
+import { Session, generateId } from "lucia";
 import { Argon2id } from "oslo/password";
 import {
   createUser,
@@ -15,7 +15,11 @@ const authValidator = z.object({
   password: z.string(),
 });
 
-const app = new Hono();
+const app = new Hono<{
+  Variables: {
+    session: Session | null;
+  };
+}>();
 
 const route = app
   .post("/signup", zValidator("json", authValidator), async (c) => {
@@ -47,6 +51,16 @@ const route = app
 
     c.header("Set-Cookie", sessionCookie.serialize());
     return c.json({ message: "Logged in" });
+  })
+  .post("/logout", async (c) => {
+    const session = c.get("session");
+    if (!session) {
+      throw new ErrorWithHttpCode("Not logged in", 401);
+    }
+
+    await lucia.invalidateSession(session.id);
+    c.header("Set-Cookie", lucia.createBlankSessionCookie().serialize());
+    return c.json({ message: "Logged out" });
   });
 
 export default app;

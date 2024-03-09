@@ -8,8 +8,7 @@ import bookmarks from "./api/bookmarks/bookmarks.controller.ts";
 import { ErrorWithHttpCode } from "./utils/errorWithHttpCode.ts";
 
 import type { User, Session } from "lucia";
-import { showRoutes } from "hono/dev";
-import { csrf } from "./middlewares/csrf.ts";
+import { csrf } from "hono/csrf";
 import { validateSession } from "./middlewares/validateSession.ts";
 
 const port = 3000;
@@ -24,10 +23,21 @@ const app = new Hono<{
 }>();
 
 app.use("*", logger());
-app.use("*", cors());
+app.use(
+  "*",
+  cors({
+    origin: (origin) => "http://127.0.0.1:5173",
+    credentials: true,
+  })
+);
 
 // CSRF middleware
-app.use("*", csrf());
+app.use(
+  "*",
+  csrf({
+    origin: "http://127.0.0.1:5173",
+  })
+);
 
 app.use("*", validateSession());
 
@@ -51,9 +61,5 @@ serve({
   fetch: app.fetch,
   port,
 });
-
-if (process.env.NODE_ENV !== "production") {
-  showRoutes(route);
-}
 
 export type AppType = typeof route;
