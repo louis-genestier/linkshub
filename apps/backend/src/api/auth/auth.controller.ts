@@ -50,7 +50,7 @@ const route = app
     const sessionCookie = await lucia.createSessionCookie(session.id);
 
     c.header("Set-Cookie", sessionCookie.serialize());
-    return c.json({ message: "Logged in" });
+    return c.json({ username: user.username });
   })
   .post("/logout", async (c) => {
     const session = c.get("session");
