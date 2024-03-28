@@ -8,7 +8,6 @@ export const Route = createRootRouteWithContext<{ auth: AuthState }>()({
     <>
       <div>
         <Link to="/">Home</Link>
-        <Link to="/about">About</Link>
       </div>
       <hr />
       <Outlet />
