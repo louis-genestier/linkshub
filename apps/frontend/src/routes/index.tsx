@@ -1,10 +1,10 @@
 import { AuthAppType } from "@repo/backend/src/api/auth/auth.controller";
-import { UserAppType } from "@repo/backend/src/api/users/users.controller";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { hc } from "hono/client";
 import { useAuthStore } from "../stores/user-store";
-import { ApiError } from "../api/apiError";
+import { useBookmarks, useDeleteBookmark } from "../api/bookmarks.queries";
+import { CreateBookmarkForm } from "../components/CreateBookmarkForm";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -18,27 +18,10 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  const { data: bookmarks, isLoading: isBookmarksLoading } = useBookmarks();
+  const { mutate: deleteBookmark } = useDeleteBookmark();
   const authClient = hc<AuthAppType>("/api/auth/");
-  const userClient = hc<UserAppType>("/api/users/");
   const navigate = useNavigate();
-
-  const {
-    data: userData,
-    refetch: refecthUser,
-    isLoading: isUserLoading,
-  } = useQuery({
-    retry: false,
-    queryKey: ["user"],
-    queryFn: async () => {
-      const res = await userClient.me.$get();
-
-      if (res.status === 401) {
-        return Promise.reject(new ApiError("Unauthorized", 401));
-      }
-
-      return res.json();
-    },
-  });
 
   const { mutate: logoutMutate } = useMutation({
     mutationFn: async () => {
@@ -54,17 +37,29 @@ function Index() {
     },
   });
 
-  if (isUserLoading) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <div>
-      <button onClick={() => refecthUser()}>Get /users/me</button>
       <button onClick={() => logoutMutate()}>logout</button>
       <div>
-        <p>User data:</p>
-        <pre>{JSON.stringify(userData, null, 2)}</pre>
+        <CreateBookmarkForm />
+        <h2>My bookmarks</h2>
+        {bookmarks?.length === 0 && <div>No bookmarks</div>}
+        {isBookmarksLoading ? (
+          <div>Loading...</div>
+        ) : (
+          <ul>
+            {bookmarks?.map((bookmark) => (
+              <li key={bookmark.id}>
+                <a href={bookmark.url} target="_blank" rel="noreferrer">
+                  {bookmark.title || bookmark.url}
+                </a>
+                <button onClick={() => deleteBookmark(bookmark.id)}>
+                  delete
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );

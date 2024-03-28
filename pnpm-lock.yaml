@@ -28,7 +28,7 @@ importers:
         version: 1.4.0
       '@hono/zod-validator':
         specifier: ^0.1.11
-        version: 0.1.11(hono@3.12.1)(zod@3.22.4)
+        version: 0.1.11(hono@4.1.5)(zod@3.22.4)
       '@lucia-auth/adapter-sqlite':
         specifier: ^3.0.0
         version: 3.0.0(better-sqlite3@9.3.0)(lucia@3.0.1)
@@ -39,8 +39,8 @@ importers:
         specifier: ^0.29.3
         version: 0.29.3(@types/better-sqlite3@7.6.8)(better-sqlite3@9.3.0)
       hono:
-        specifier: ^3.12.0
-        version: 3.12.1
+        specifier: ^4.1.5
+        version: 4.1.5
       lucia:
         specifier: ^3.0.1
         version: 3.0.1
@@ -1077,13 +1077,13 @@ packages:
     engines: {node: '>=18.14.1'}
     dev: false
 
-  /@hono/zod-validator@0.1.11(hono@3.12.1)(zod@3.22.4):
+  /@hono/zod-validator@0.1.11(hono@4.1.5)(zod@3.22.4):
     resolution: {integrity: sha512-PQXeHUP0+36qpRt8yfeD7N2jbK3ETlGvSN6dMof/HwUC/APRokQRjpXZm4rrlG71Ft0aWE01+Bm4XejqPie5Uw==}
     peerDependencies:
       hono: '>=3.9.0'
       zod: ^3.19.1
     dependencies:
-      hono: 3.12.1
+      hono: 4.1.5
       zod: 3.22.4
     dev: false
 
@@ -4149,6 +4149,11 @@ packages:
 
   /hono@3.12.1:
     resolution: {integrity: sha512-wCvww2YZ04whKJVXHDwtnx0x5Jzj0xtVUkguyj1zRDQ4qW1yKWcUTNCOa/H/wMHrHtXJmymlpIZIGUm3MwXlHA==}
+    engines: {node: '>=16.0.0'}
+    dev: false
+
+  /hono@4.1.5:
+    resolution: {integrity: sha512-3ChJiIoeCxvkt6vnkxJagplrt1YZg3NyNob7ssVeK2PUqEINp4q1F94HzFnvY9QE8asVmbW5kkTDlyWylfg2vg==}
     engines: {node: '>=16.0.0'}
     dev: false
 
