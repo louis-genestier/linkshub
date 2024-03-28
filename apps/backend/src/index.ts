@@ -10,6 +10,7 @@ import { ErrorWithHttpCode } from "./utils/errorWithHttpCode.ts";
 import type { User, Session } from "lucia";
 import { csrf } from "hono/csrf";
 import { validateSession } from "./middlewares/validateSession.ts";
+import { StatusCode } from "hono/utils/http-status";
 
 const port = 3000;
 
@@ -26,7 +27,7 @@ app.use("*", logger());
 app.use(
   "*",
   cors({
-    origin: (origin) => "http://127.0.0.1:5173",
+    origin: () => "http://127.0.0.1:5173",
     credentials: true,
   })
 );
@@ -47,7 +48,7 @@ const route = app
   .route("/bookmarks", bookmarks)
   .onError((e, c) => {
     if (e instanceof ErrorWithHttpCode) {
-      c.status(e.httpCode);
+      c.status(e.httpCode as StatusCode);
       return c.json({ error: e.message });
     }
 
