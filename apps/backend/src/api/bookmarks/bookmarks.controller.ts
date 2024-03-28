@@ -10,7 +10,6 @@ import {
   updateBookmarkById,
 } from "../../database/models/bookmarks.model.ts";
 import type { User, Session } from "lucia";
-import { Variables } from "hono/types";
 
 const app = new Hono<{
   Variables: {
