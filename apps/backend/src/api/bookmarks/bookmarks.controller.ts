@@ -10,6 +10,7 @@ import {
   updateBookmarkById,
 } from "../../database/models/bookmarks.model.ts";
 import type { User, Session } from "lucia";
+import { getTitleFromUrl } from "../../utils/getTitleFromUrl.ts";
 
 const app = new Hono<{
   Variables: {
@@ -40,8 +41,17 @@ const route = app
     async (c) => {
       const { id: userId } = c.get("user");
       const { url, title } = c.req.valid("json");
+      let titleFromUrl = "";
 
-      const createdBookmark = await createBookmark(userId, url, title);
+      if (!title) {
+        titleFromUrl = await getTitleFromUrl(url);
+      }
+
+      const createdBookmark = await createBookmark(
+        userId,
+        url,
+        title || titleFromUrl
+      );
 
       return c.json({ ...createdBookmark[0] });
     }
