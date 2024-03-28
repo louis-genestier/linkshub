@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider } from "@tanstack/react-router";
+import "./app.css";
 
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useAuthStore } from "./stores/user-store";
