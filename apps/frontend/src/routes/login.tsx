@@ -1,5 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { LoginForm } from "../components/LoginForm";
+import { css } from "@panda/css";
 
 export const Route = createFileRoute("/login")({
   component: Index,
@@ -14,7 +15,12 @@ export const Route = createFileRoute("/login")({
 
 export function Index() {
   return (
-    <div>
+    <div
+      className={css({
+        width: "100vw",
+        height: "100vh",
+      })}
+    >
       <LoginForm />
     </div>
   );
