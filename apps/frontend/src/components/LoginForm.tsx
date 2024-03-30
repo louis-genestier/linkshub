@@ -7,11 +7,18 @@ import { Container, Stack } from "@panda/jsx";
 import { Input } from "./ui/input";
 import { Text } from "./ui/text";
 import * as Card from "./ui/card";
+import * as Alert from "./ui/alert";
 import { FormLabel } from "./ui/form-label";
 import { Button } from "./ui/button";
+import { TriangleAlert } from "lucide-react";
+import { css } from "@panda/css";
 
 export const LoginForm = () => {
-  const { mutate: loginMutation } = useLoginMutation();
+  const {
+    mutate: loginMutation,
+    isError: loginError,
+    error,
+  } = useLoginMutation();
   const navigate = useNavigate();
 
   const form = useForm({
@@ -46,6 +53,14 @@ export const LoginForm = () => {
             </Card.Header>
             <Card.Body>
               <Stack gap="4">
+                {loginError && (
+                  <Alert.Root>
+                    <Alert.Icon asChild>
+                      <TriangleAlert />
+                    </Alert.Icon>
+                    <Alert.Title>{error.message}</Alert.Title>
+                  </Alert.Root>
+                )}
                 <Stack gap="1.5">
                   <form.Field
                     name="username"

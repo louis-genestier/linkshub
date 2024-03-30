@@ -38,10 +38,6 @@ export const getUserByUsername = async (username: string) => {
       where: eq(user.username, username),
     });
 
-    if (!foundUser) {
-      throw new ErrorWithHttpCode("User not found", 404);
-    }
-
     return foundUser;
   } catch (e) {
     if (e instanceof ErrorWithHttpCode) {

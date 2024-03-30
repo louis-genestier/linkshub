@@ -38,11 +38,11 @@ const route = app
     const user = await getUserByUsername(username);
 
     const validPassword = await new Argon2id().verify(
-      user.hashedPassword,
+      user?.hashedPassword ?? "$argon2id$v=2",
       password
     );
 
-    if (!validPassword) {
+    if (!validPassword || !user) {
       throw new ErrorWithHttpCode("Incorrect username or password", 400);
     }
 
