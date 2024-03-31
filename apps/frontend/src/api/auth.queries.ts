@@ -22,3 +22,13 @@ export const useLoginMutation = () =>
       return user;
     },
   });
+
+export const useLogoutMutation = () =>
+  useMutation({
+    mutationFn: async () => {
+      const res = await authClient.logout.$post();
+
+      useAuthStore.getState().logout();
+      return res.json();
+    },
+  });
