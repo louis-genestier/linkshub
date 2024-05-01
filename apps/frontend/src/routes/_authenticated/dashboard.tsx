@@ -1,20 +1,13 @@
 import { AuthAppType } from "@repo/backend/src/api/auth/auth.controller";
 import { useMutation } from "@tanstack/react-query";
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { hc } from "hono/client";
-import { useAuthStore } from "../stores/user-store";
-import { useBookmarks, useDeleteBookmark } from "../api/bookmarks.queries";
-import { CreateBookmarkForm } from "../components/CreateBookmarkForm";
+import { useAuthStore } from "../../stores/user-store";
+import { useBookmarks, useDeleteBookmark } from "../../api/bookmarks.queries";
+import { CreateBookmarkForm } from "../../components/CreateBookmarkForm";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_authenticated/dashboard")({
   component: Index,
-  beforeLoad: ({ context }) => {
-    if (!context.auth.user) {
-      throw redirect({
-        to: "/login",
-      });
-    }
-  },
 });
 
 function Index() {
@@ -32,7 +25,7 @@ function Index() {
     },
     onSuccess: () => {
       navigate({
-        to: "/login",
+        to: "/",
       });
     },
   });
